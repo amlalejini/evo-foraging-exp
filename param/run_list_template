@@ -1,6 +1,6 @@
 set description Exp: evolution of foraging strategies (for CSE845-s16)
 set class_pref 150
-set mem_request 4
+set mem_request 20
 set beacon_priority y
 set email_when final
 set email lalejini@msu.edu
