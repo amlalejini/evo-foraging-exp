@@ -22,5 +22,10 @@
       "values": 50000,
       "uid": "U"
     }
+  },
+  "run_list_template": "param/run_list_template",
+  "run_list_config": {
+    "rep_start": 1,
+    "rep_end": 10
   }
 }

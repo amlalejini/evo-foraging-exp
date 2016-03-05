@@ -73,3 +73,13 @@ if __name__ == "__main__":
         write_cfg(cfgs[treatment], settings["config_output"], "%s.cfg" % treatment)
 
     # Build a run list flie for this
+    with open(settings["run_list_template"]) as fp:
+        rl_content = fp.read() + "\n\n"
+    for treatment in cfgs:
+        reps = "%s..%s" % (settings["run_list_config"]["rep_start"], settings["run_list_config"]["rep_end"])
+        name ="%s_rep" % treatment
+        config_name = "%s.cfg" % treatment
+        cmd = "%s %s mkdir output && mkdir config && cp %s config && module swap GNU GNU/4.8.3 && ./MABE configFileName %s outputDirectory ./output/ randomSeed $seed && rm *.cfg" % (reps, name, config_name, config_name)
+        rl_content += "%s\n\n" % cmd
+    with open(os.path.join("config", "run_list"), "w") as fp:
+        fp.write(rl_content)
