@@ -3,19 +3,19 @@
   "config_output": "config/",
   "experiment_config": {
     "FORAGE_predictability": {
-      "values": [0, 0.5, 1.0],
+      "values": [0, 1.0],
       "uid": "P"
     },
     "FORAGE_granularity": {
-      "values": [1, 2, 4, 8, 16],
+      "values": [1, 2, 16],
       "uid": "G"
     },
     "FORAGE_areaSize": {
-      "values": [64, 128, 256],
+      "values": [64],
       "uid": "A"
     },
     "FORAGE_tickLength": {
-      "values": [512, 256, 128],
+      "values": [256],
       "uid": "T"
     },
     "updates": {
