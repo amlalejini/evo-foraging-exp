@@ -1,12 +1,14 @@
 #!/bin/bash --login
 
 ### Define Resources needed:
-#PBS -l walltime=72:00:00
+####PBS -l walltime=72:00:00
+####PBS -l mem=20gb
+#PBS -l walltime=00:10:00
+#PBS -l mem=2gb
 #PBS -l nodes=1:ppn=1
-#PBS -l mem=20gb
 #PBS -l feature=intel14
 ### Name job
-#PBS -N T-256_G-16_A-64_P-1.0
+#PBS -N T-256_G-1_A-64_P-1.0
 ### Email stuff
 #PBS -M lalejini@msu.edu
 #PBS -m ae
@@ -15,18 +17,18 @@
 ### Combine and redirect output/error logs
 #PBS -j oe
 
-cd ${PBS_O_WORKDIR}
+TREATMENT_NAME=T-256_G-1_A-64_P-1.0_U-50000
+DATA_DIR=${HOME}/Data/evo-foraging-exp
+REP_DIR=${DATA_DIR}/${TREATMENT_NAME}/rep_${PBS_ARRAYID}
 
-DATA_DIR=${HOME}/Data/evo-foraging-exp/testing/qsub_test/
-REP_DIR=${DATA_DIR}/${PBS_JOBNAME}/rep_${PBS_ARRAYID}/
+cd ${PBS_O_WORKDIR}
 mkdir -p ${REP_DIR}
 mkdir -p ${REP_DIR}/output
 
-cp ../config/${PBS_JOBNAME}_U-50000.cfg ${REP_DIR}
-cp MABE ${REB_DIR}
+cp ../config/${TREATMENT_NAME}.cfg ${REP_DIR}
+cp ../MABE ${REP_DIR}
 
 cd ${REP_DIR}
-
-./MABE configFileName ./${PBS_JOBNAME}_U-50000.cfg outputDirectory ./output/ randomSeed ${PBS_ARRAYID}  > ${REP_DIR}/log 2>&1
+./MABE configFileName ./${TREATMENT_NAME}.cfg outputDirectory ./output/ randomSeed ${PBS_ARRAYID} updates 10  > ${REP_DIR}/log 2>&1
 
 qstat -f ${PBS_JOBID}
