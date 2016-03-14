@@ -22,7 +22,7 @@ REP_DIR=${DATA_DIR}/${PBS_JOBNAME}/rep_${PBS_ARRAYID}/
 mkdir -p ${REP_DIR}
 mkdir -p ${REP_DIR}/output
 
-cp ${PBS_JOBNAME}_U-50000.cfg ${REP_DIR}
+cp ../config/${PBS_JOBNAME}_U-50000.cfg ${REP_DIR}
 cp MABE ${REB_DIR}
 
 cd ${REP_DIR}
