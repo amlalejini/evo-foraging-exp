@@ -15,18 +15,19 @@
 ### Combine and redirect output/error logs
 #PBS -j oe
 
+TREATMENT_NAME=T-256_G-16_A-64_P-1.0_U-50000
 cd ${PBS_O_WORKDIR}
 
-DATA_DIR=${HOME}/Data/evo-foraging-exp/testing/qsub_test/
-REP_DIR=${DATA_DIR}/${PBS_JOBNAME}/rep_${PBS_ARRAYID}/
+DATA_DIR=${HOME}/Data/evo-foraging-exp/testing/qsub_test
+REP_DIR=${DATA_DIR}/${TREATMENT_NAME}/rep_${PBS_ARRAYID}
 mkdir -p ${REP_DIR}
 mkdir -p ${REP_DIR}/output
 
-cp ../config/${PBS_JOBNAME}_U-50000.cfg ${REP_DIR}
-cp MABE ${REB_DIR}
+cp ../config/${TREATMENT_NAME}.cfg ${REP_DIR}
+cp ../MABE ${REB_DIR}
 
 cd ${REP_DIR}
 
-./MABE configFileName ./${PBS_JOBNAME}_U-50000.cfg outputDirectory ./output/ randomSeed ${PBS_ARRAYID}  > ${REP_DIR}/log 2>&1
+./MABE configFileName ./${TREATMENT_NAME}.cfg outputDirectory ./output/ randomSeed ${PBS_ARRAYID}  > ${REP_DIR}/log 2>&1
 
 qstat -f ${PBS_JOBID}
