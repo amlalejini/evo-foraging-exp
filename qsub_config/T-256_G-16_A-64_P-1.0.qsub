@@ -26,7 +26,7 @@ mkdir -p ${REP_DIR}
 mkdir -p ${REP_DIR}/output
 
 cp ../config/${TREATMENT_NAME}.cfg ${REP_DIR}
-cp ../MABE ${REP_DIR}
+cp ../config/MABE ${REP_DIR}
 
 cd ${REP_DIR}
 ./MABE configFileName ./${TREATMENT_NAME}.cfg outputDirectory ./output/ randomSeed ${PBS_ARRAYID} updates 10  > ${REP_DIR}/log 2>&1
