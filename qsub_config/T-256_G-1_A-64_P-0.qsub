@@ -1,12 +1,12 @@
 #!/bin/bash --login
 
 ### Define Resources needed:
-#PBS -l walltime=36:00:00
+#PBS -l walltime=72:00:00
 #PBS -l nodes=1:ppn=1
 #PBS -l mem=20gb
 #PBS -l feature=intel14
 ### Name job
-#PBS -N T-256_G-16_A-64_P-1.0
+#PBS -N T-256_G-1_A-64_P-0
 ### Email stuff
 #PBS -M lalejini@msu.edu
 #PBS -m ae
@@ -17,8 +17,8 @@
 
 cd ${PBS_O_WORKDIR}
 
-DATA_DIR=${HOME}/Data/evo-foraging-exp/testing/qsub_test/
-REP_DIR=${DATA_DIR}/${PBS_JOBNAME}/rep_${PBS_ARRAYID}/
+DATA_DIR=${HOME}/Data/evo-foraging-exp
+REP_DIR=${DATA_DIR}/${PBS_JOBNAME}/rep_${PBS_ARRAYID}
 mkdir -p ${REP_DIR}
 mkdir -p ${REP_DIR}/output
 
