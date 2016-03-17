@@ -2,7 +2,7 @@
 
 ### Define Resources needed:
 #PBS -l walltime=72:00:00
-#PBS -l mem=20gb
+#PBS -l mem=8gb
 #PBS -l nodes=1:ppn=1
 #PBS -l feature=intel14
 ### Name job
@@ -16,7 +16,7 @@
 #PBS -j oe
 
 TREATMENT_NAME=T-256_G-2_A-64_P-1.0_U-50000
-DATA_DIR=${HOME}/Data/evo-foraging-exp
+DATA_DIR=${HOME}/Data/evo-foraging-exp/probgates
 REP_DIR=${DATA_DIR}/${TREATMENT_NAME}/rep_${PBS_ARRAYID}
 
 cd ${PBS_O_WORKDIR}
