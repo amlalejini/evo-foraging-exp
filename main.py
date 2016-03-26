@@ -2,6 +2,12 @@ import json, csv, os
 import matplotlib.pyplot as plt
 from pandas import *
 
+def parse_fitness_csv(dom_file, treatment_name, rep, env):
+    with open(dom_file, "r") as fp:
+        reader = csv.reader(fp ,delimiter=",", quotechar='"') #reads everything in file and writes it into 'data'
+        data = [row for row in reader]
+    data = data[-1]
+    return float(data[5])
 
 def ravi_script(dom_file = None):
     F=open(dom_file,"rt")
@@ -75,7 +81,7 @@ def allison_script(dom_file = None):
     dataList = []
     numTrials = 3 #always three replicates
     with open(dom_file, "r") as fp: #open final, becomes variable fp, will close file automatically
-        data=csv.reader(fp ,delimiter=",", quotechar='"') #reads everything in file and writes it into 'data'
+        data = csv.reader(fp ,delimiter=",", quotechar='"') #reads everything in file and writes it into 'data'
         for row in data:
             dataList.append(row) #this makes each row of data a segment of the list
 
@@ -127,6 +133,8 @@ if __name__ == "__main__":
         settings = json.load(fp)
     data_loc = settings["analysis"]["exp_data_location"]
 
+    csv_content = "treatment,rep,env,fitness\n"
+
     # Grab list of treatments in data location
     treatments = [tname for tname in os.listdir(data_loc) if os.path.isdir(os.path.join(data_loc, tname))]
     # Analyze treatment by treatment
@@ -141,4 +149,10 @@ if __name__ == "__main__":
 
             dom_file = os.path.join(rep_loc, "output", "dominant.csv")
             #allison_script(dom_file)
-            ravi_script(dom_file)
+            #ravi_script(dom_file)
+            env = "_".join(treatment.split("_")[0:-1])
+            fitness = parse_fitness_csv(dom_file, treatment, rep, treatment)
+            csv_content += "%s,%s,%s,%f\n" % (treatment, rep, env, fitness)
+
+    with open("fitnesses.csv", "w") as fp:
+        fp.write(csv_content)
