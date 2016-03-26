@@ -29,7 +29,7 @@
     "rep_end": 10
   },
   "analysis": {
-    "exp_data_location": "/home/parallels/Desktop/scratch/evofor_test",
+    "exp_data_location": "/home/parallels/Desktop/probgates",
     "genome_trials": 1,
     "genomeFileToAnalyze": "genome_50000.csv"
   }
