@@ -153,6 +153,7 @@ def gen_revisit_metrics(dom = None, dump_loc = None, heatmaps = True, revisit_di
             # Save this image
             plt.imshow(area, interpolation = "nearest")
             plt.savefig(os.path.join(dump_loc, "heatmap_%d.png" % i))
+            plt.clf()
         # Save trial revisit distribution
         if revisit_dist:
             for ax in range(0, dimensions[0]):
@@ -163,17 +164,59 @@ def gen_revisit_metrics(dom = None, dump_loc = None, heatmaps = True, revisit_di
             plt.xlabel("Number of Times Visited")
             plt.ylabel("Number of Squares")
             plt.title("Distribution of Revisits")
-            plt.show()
             plt.savefig(os.path.join(dump_loc, "revisit_dist_%d.png" % i))
+            plt.clf()
     if heatmaps:
         plt.imshow(aggregate_area, interpolation = "nearest")
         plt.savefig(os.path.join(dump_loc, "heatmap_avg.png"))
+        plt.clf()
     if revisit_dist:
         plt.bar([n for n in range(0, 1024)], aggregate_distribution)
         plt.xlabel("Number of Times Visited")
         plt.ylabel("Number of Squares")
         plt.title("Distribution of Revisits")
         plt.savefig(os.path.join(dump_loc, "revisit_dist_sum.png"))
+        plt.clf()
+
+def gen_ang_autocorrelation_metrics(dom = None, dump_loc = None):
+    '''
+    Originally written by Ravi, modified by Alex
+    '''
+    # Break up trail paths (delimited by a -1)
+    x_paths = dom["xLocation"].strip("[]").split(",")
+    y_paths = dom["yLocation"].strip("[]").split(",")
+    trial_paths = {"x_paths": [], "y_paths": []}
+    for i in range(0, len(x_paths)):
+        if x_paths[i] == "-1":
+            trial_paths["x_paths"].append([])
+            trial_paths["y_paths"].append([])
+        else:
+            trial_paths["x_paths"][-1].append(int(x_paths[i]))
+            trial_paths["y_paths"][-1].append(int(y_paths[i]))
+
+    window = 5
+    for t in range(0, len(trial_paths["x_paths"])):
+        angCor = []
+        disCor = []
+        xLoc = trial_paths["x_paths"][t]
+        yLoc = trial_paths["y_paths"][t]
+        for i in range(0, len(trial_paths["x_paths"][t]) - window):
+            if ((((xLoc[i+5]-xLoc[i])**2 + (yLoc[i+5]-yLoc[i])**2)**0.5)!=0):
+                angCor.append((xLoc[i+5]-xLoc[i])/(((xLoc[i+5]-xLoc[i])**2 + (yLoc[i+5]-yLoc[i])**2)**0.5))
+                disCor.append((((xLoc[i+5]-xLoc[i])**2 + (yLoc[i+5]-yLoc[i])**2)**0.5))
+
+        plt.axis([0,1100,-1.5,1.5])
+        plt.xlabel("Movements")
+        plt.ylabel("Angular Correlation")
+        plt.plot(angCor)
+        plt.savefig(os.path.join(dump_loc, "ang_correlation_%d.png" % t))
+        plt.clf()
+
+        plt.xlabel("Movements")
+        plt.ylabel("Radial Distance")
+        plt.plot(disCor)
+        plt.savefig(os.path.join(dump_loc, "rad_dist_%d.png" % t))
+        plt.clf()
 
 def mkdir_p(path):
     try:
@@ -219,8 +262,8 @@ if __name__ == "__main__":
             ####################################
             rep_dump = os.path.join(dump_loc, treatment, rep)
             mkdir_p(rep_dump)
-            #gen_revisit_metrics(dom = dom_dict, dump_loc = rep_dump, heatmaps = False, revisit_dist = False)
-
+            gen_revisit_metrics(dom = dom_dict, dump_loc = rep_dump, heatmaps = True, revisit_dist = True)
+            gen_ang_autocorrelation_metrics(dom = dom_dict, dump_loc = rep_dump)
             # Generate csv_content for this replicate
             env = "_".join(treatment.split("_")[0:-1])
             fitness = float(dom_dict["score"])
