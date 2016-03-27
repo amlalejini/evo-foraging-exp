@@ -1,10 +1,13 @@
-String filename="G16_P1_R10_org-0_trial-0_analysis.csv";
-ArrayList<String> orgs_to_draw = new ArrayList<String>();
-Table table;
-int t=0;
+import java.util.*;
+
+//ArrayList<HashMap<String, String>> orgs_to_draw = new ArrayList<HashMap<String, String>>();
+ArrayList orgs_to_draw = new ArrayList();
+int current_org = 0;
 int zoom=8;
 int mapSize=88;
 color[] cols=new color[4];
+Table table;
+int t = 0;
 //time,foodCollected,xLocation,yLocation,mapSize,map
 void setup(){
     String exp_path = "/home/parallels/Desktop/probgates/";
@@ -17,40 +20,71 @@ void setup(){
       for (String rep : reps) {
         String rep_analysis_path = treatment_path + rep + "/analysis/";
         String org_data_fp = rep_analysis_path + "org-0_trial-0_analysis.csv";
-        orgs_to_draw.add(org_data_fp);      
+        HashMap<String, String> org_map = new HashMap<String, String>();
+        org_map.put("org_data_fp", org_data_fp);
+        org_map.put("rep", rep);
+        org_map.put("treatment", treatment);
+        orgs_to_draw.add(org_map);
       }
     }
-    println(orgs_to_draw);
     size(704,704);
-    table = loadTable(filename, "header");
+    //table = loadTable(filename, "header");
     cols[0]=color(0,0,0);
     cols[1]=color(10,200,50); //gras
     cols[2]=color(200,100,100); //dude
     cols[3]=color(128,128,128);
-    exit();
-    
+    //exit();
+    println("SHOWING: " +  (String)((HashMap) orgs_to_draw.get(current_org)).get("org_data_fp"));
+    table = loadTable((String)((HashMap) orgs_to_draw.get(current_org)).get("org_data_fp"), "header");
 }
 
 void draw(){
-    String map=table.getString(t,"map");
-    map=map.replace('[',' ');
-    map=map.replace(']',' ');
-    String[] tiles=map.split(",");
+    String map = table.getString(t, "map");
+    map = map.replace("[", "");
+    map = map.replace("]", "");
+    String[] tiles = map.split(",");
     noStroke();
-    int z=0;
-    for(int i=0;i<mapSize;i++){
-        for(int j=0;j<mapSize;j++){
-            fill(cols[Integer.parseInt(tiles[z].trim())]);
-            rect(j*zoom,i*zoom,zoom,zoom);
-            z++;
-        }
+    int z= 0;
+    for (int i = 0; i < mapSize; i++) {
+      for (int j = 0; j < mapSize; j++) {
+        fill(cols[Integer.parseInt(tiles[z].trim())]);
+        rect(j * zoom, i * zoom, zoom, zoom);
+        z++;
+      }
     }
     fill(cols[2]);
-    rect(table.getInt(t,"yLocation")*zoom,table.getInt(t,"xLocation")*zoom,zoom,zoom);
+    rect(table.getInt(t, "yLocation") * zoom, table.getInt(t, "xLocation") * zoom, zoom, zoom);
+    saveFrame("vid_dump/" + (String)((HashMap) orgs_to_draw.get(current_org)).get("treatment") + "/" + (String)((HashMap) orgs_to_draw.get(current_org)).get("rep") + "/" + "frame-" + t + ".png");
     t++;
-    //uncommen the line below to save all the frames
-    saveFrame("frame-####.png");
-    if(t>=table.getRowCount()){
+    if (t >= table.getRowCount()) {
+      current_org++;
+      t = 0;
+      if (current_org >= orgs_to_draw.size()) {
         exit();
+      }
+      table = loadTable((String)((HashMap) orgs_to_draw.get(current_org)).get("org_data_fp"), "header");
+      println("SHOWING: " +  (String)((HashMap) orgs_to_draw.get(current_org)).get("org_data_fp"));
     }
+
+    //String map=table.getString(t,"map");
+    //map=map.replace('[',' ');
+    //map=map.replace(']',' ');
+    //String[] tiles=map.split(",");
+    //noStroke();
+    //int z=0;
+    //for(int i=0;i<mapSize;i++){
+    //    for(int j=0;j<mapSize;j++){
+    //        fill(cols[Integer.parseInt(tiles[z].trim())]);
+    //        rect(j*zoom,i*zoom,zoom,zoom);
+    //        z++;
+    //    }
+    //}
+    //fill(cols[2]);
+    //rect(table.getInt(t,"yLocation")*zoom,table.getInt(t,"xLocation")*zoom,zoom,zoom);
+    //t++;
+    ////uncommen the line below to save all the frames
+    //saveFrame("frame-####.png");
+    //if(t>=table.getRowCount()){
+    //    exit();
+    //}
 }

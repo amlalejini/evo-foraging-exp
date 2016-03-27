@@ -32,6 +32,8 @@
     "exp_data_location": "/home/parallels/Desktop/probgates",
     "genome_trials": 1,
     "genomeFileToAnalyze": "genome_50000.csv",
-    "analysis_dump": "/home/parallels/Desktop/probgates-analysis"
+    "analysis_dump": "/home/parallels/Desktop/probgates-analysis",
+    "vid_frame_dump": "/home/parallels/devo_ws/evo-foraging-exp/group_scripts/EFS_visualizer/vid_dump",
+    "vid_dump": "/home/parallels/Desktop/probgates-analysis/vids"
   }
 }
