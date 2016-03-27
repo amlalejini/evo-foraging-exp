@@ -31,6 +31,7 @@
   "analysis": {
     "exp_data_location": "/home/parallels/Desktop/probgates",
     "genome_trials": 1,
-    "genomeFileToAnalyze": "genome_50000.csv"
+    "genomeFileToAnalyze": "genome_50000.csv",
+    "analysis_dump": "/home/parallels/Desktop/probgates-analysis"
   }
 }
