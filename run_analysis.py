@@ -42,6 +42,7 @@ if __name__ == "__main__":
             # Analyze genome in each test environment
             test_envs = [ename for ename in os.listdir(test_envs_loc) if ".cfg" in ename]
             for env in test_envs:
+                print "ENV: " + str(env)
                 configFileName = os.path.join(test_envs_loc, env)
                 analyzeOutputDirectory = os.path.join(analysis_dump, treatment, rep, "env__" + env.replace(".cfg","")) + "/"
                 log = os.path.join(analyzeOutputDirectory, "analysis_log")

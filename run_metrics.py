@@ -120,7 +120,7 @@ def allison_script(dom_file = None):
     # plt.title("Distribution of Revisits")
     # plt.show()
 
-def gen_revisit_metrics(dom = None, dump_loc = None, heatmaps = True, revisit_dist = True):
+def gen_revisit_metrics(dom = None, dump_loc = None, heatmaps = True, revisit_dist = True, env = None):
     '''
     This code was originally written by Allison. Modified by Alex.
     '''
@@ -138,10 +138,10 @@ def gen_revisit_metrics(dom = None, dump_loc = None, heatmaps = True, revisit_di
             trail_paths["y_paths"][-1].append(int(y_paths[i]))
     # For each trail
     aggregate_area = [[0 for y in range(dimensions[1])] for x in range(dimensions[0])]
-    aggregate_distribution = [0 for t in range(0, len(trail_paths["x_paths"][-1]))]
+    aggregate_distribution = [0 for t in range(0, len(trail_paths["x_paths"][-1]) + 1)]
     for i in range(0, len(trail_paths["x_paths"])):
         area = [[0 for y in range(dimensions[1])] for x in range(dimensions[0])]
-        distribution = [0 for t in range(0, len(trail_paths["x_paths"][i]))]
+        distribution = [0 for t in range(0, len(trail_paths["x_paths"][i]) + 1)]
         # For each time point
         for k in range(0, len(trail_paths["x_paths"][i])):
             x = trail_paths["x_paths"][i][k]
@@ -152,7 +152,7 @@ def gen_revisit_metrics(dom = None, dump_loc = None, heatmaps = True, revisit_di
         if heatmaps:
             # Save this image
             plt.imshow(area, interpolation = "nearest")
-            plt.savefig(os.path.join(dump_loc, "heatmap_%d.png" % i))
+            plt.savefig(os.path.join(dump_loc, "%s__heatmap_%d.png" % (env, i)))
             plt.clf()
         # Save trial revisit distribution
         if revisit_dist:
@@ -160,22 +160,22 @@ def gen_revisit_metrics(dom = None, dump_loc = None, heatmaps = True, revisit_di
                 for ay in range(0, dimensions[1]):
                     distribution[area[ax][ay]] += 1
                     aggregate_distribution[area[ax][ay]] += 1
-            plt.bar([n for n in range(0, 1024)], distribution)
+            plt.bar([n for n in range(0, 1025)], distribution)
             plt.xlabel("Number of Times Visited")
             plt.ylabel("Number of Squares")
             plt.title("Distribution of Revisits")
-            plt.savefig(os.path.join(dump_loc, "revisit_dist_%d.png" % i))
+            plt.savefig(os.path.join(dump_loc, "%s__revisit_dist_%d.png" % (env, i)))
             plt.clf()
     if heatmaps:
         plt.imshow(aggregate_area, interpolation = "nearest")
-        plt.savefig(os.path.join(dump_loc, "heatmap_avg.png"))
+        plt.savefig(os.path.join(dump_loc, "%s__heatmap_avg.png" % env))
         plt.clf()
     if revisit_dist:
-        plt.bar([n for n in range(0, 1024)], aggregate_distribution)
+        plt.bar([n for n in range(0, 1025)], aggregate_distribution)
         plt.xlabel("Number of Times Visited")
         plt.ylabel("Number of Squares")
         plt.title("Distribution of Revisits")
-        plt.savefig(os.path.join(dump_loc, "revisit_dist_sum.png"))
+        plt.savefig(os.path.join(dump_loc, "%s__revisit_dist_sum.png" % env))
         plt.clf()
 
 def gen_ang_autocorrelation_metrics(dom = None, dump_loc = None):
@@ -231,43 +231,48 @@ if __name__ == "__main__":
     # Load up 'dem sett'ns
     with open(settings_fp) as fp:
         settings = json.load(fp)
-    data_loc = settings["analysis"]["exp_data_location"]
+    analysis_data_loc = settings["analysis"]["analysis_dump"]
+    metrics_dump = settings["analysis"]["metrics_dump"]
     # ensure that analysis dump exists
-    dump_loc = settings["analysis"]["analysis_dump"]
-    mkdir_p(dump_loc)
+    #dump_loc = settings["analysis"]["analysis_dump"]
+    #mkdir_p(dump_loc)
 
     csv_content = "treatment,rep,env,fitness\n"
     # Grab list of treatments in data location
-    treatments = [tname for tname in os.listdir(data_loc) if os.path.isdir(os.path.join(data_loc, tname))]
+    treatments = [tname for tname in os.listdir(analysis_data_loc) if os.path.isdir(os.path.join(analysis_data_loc, tname))]
     # Analyze treatment by treatment
     for treatment in treatments:
         print treatment
-        treatment_loc = os.path.join(data_loc, treatment)
+        treatment_loc = os.path.join(analysis_data_loc, treatment)
         replicates = [rname for rname in os.listdir(treatment_loc) if os.path.isdir(os.path.join(treatment_loc, rname))]
         # Analyze each replicate
         for rep in replicates:
             print rep
             rep_loc = os.path.join(treatment_loc, rep)
 
-            # Grab final dominant organism info for this replicate
-            with open(os.path.join(rep_loc, "output", "dominant.csv"), "r") as fp:
-                reader = csv.reader(fp, delimiter = ",", quotechar = '"')
-                data = [row for row in reader]
-            headers = data[0]
-            dom = data[-1]
-            # Dom dict contains final dominant organism for this treatment
-            dom_dict = {headers[i]: dom[i] for i in range(0, len(headers))}
-            ####################################
-            # Run metrics
-            ####################################
-            rep_dump = os.path.join(dump_loc, treatment, rep)
-            mkdir_p(rep_dump)
-            gen_revisit_metrics(dom = dom_dict, dump_loc = rep_dump, heatmaps = True, revisit_dist = True)
-            gen_ang_autocorrelation_metrics(dom = dom_dict, dump_loc = rep_dump)
-            # Generate csv_content for this replicate
-            env = "_".join(treatment.split("_")[0:-1])
-            fitness = float(dom_dict["score"])
-            csv_content += "%s,%s,%s,%f\n" % (treatment, rep, env, fitness)
+            # Analyze each environment organism was tested in
+            envs = [ename for ename in os.listdir(rep_loc) if "env__" in ename]
+            rep_metrics_dump = os.path.join(metrics_dump, treatment, rep)
+            mkdir_p(rep_metrics_dump)
+            for env in envs:
+                print "ENV: " + str(env)
+                env_loc = os.path.join(rep_loc, env)
+                # Grab tested dom organism
+                with open(os.path.join(env_loc, "dominant.csv"), "r") as fp:
+                    reader = csv.reader(fp, delimiter = ",", quotechar = '"')
+                    data = [row for row in reader]
+                headers = data[0]
+                dom = data[-1]
+                # Dom dict contains final dominant organism for this treatment
+                dom_dict = {headers[i]: dom[i] for i in range(0, len(headers))}
+                ####################################
+                # Run metrics
+                ####################################
+                gen_revisit_metrics(dom = dom_dict, dump_loc = rep_metrics_dump, heatmaps = True, revisit_dist = True, env = env)
+                #gen_ang_autocorrelation_metrics(dom = dom_dict, dump_loc = rep_metrics_dump, env = env)
+                # Generate csv for this bro
+                fitness = float(dom_dict["score"])
+                csv_content += "%s,%s,%s,%f\n" % (treatment, rep, env, fitness)
 
-    with open(os.path.join(dump_loc, "fitness.csv"), "w") as fp:
+    with open(os.path.join(metrics_dump, "fitness.csv"), "w") as fp:
         fp.write(csv_content)
