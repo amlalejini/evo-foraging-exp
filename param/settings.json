@@ -7,7 +7,7 @@
       "uid": "P"
     },
     "FORAGE_granularity": {
-      "values": [1, 2, 16],
+      "values": [1, 2, 4, 8, 16],
       "uid": "G"
     },
     "FORAGE_areaSize": {
@@ -17,12 +17,9 @@
     "FORAGE_tickLength": {
       "values": [256],
       "uid": "T"
-    },
-    "updates": {
-      "values": 50000,
-      "uid": "U"
     }
   },
+  "generate_run_list": false,
   "run_list_template": "param/run_list_template",
   "run_list_config": {
     "rep_start": 1,
@@ -30,6 +27,7 @@
   },
   "analysis": {
     "exp_data_location": "/home/parallels/Desktop/probgates",
+    "test_envs_loc": "./test_envs",
     "genome_trials": 1,
     "genomeFileToAnalyze": "genome_50000.csv",
     "analysis_dump": "/home/parallels/Desktop/probgates-analysis",

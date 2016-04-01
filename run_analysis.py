@@ -19,6 +19,7 @@ if __name__ == "__main__":
     with open(settings_fp) as fp:
         settings = json.load(fp)
     data_loc = settings["analysis"]["exp_data_location"]
+    test_envs_loc = settings["analysis"]["test_envs_loc"]
     # Grab list of treatments in data location
     treatments = [tname for tname in os.listdir(data_loc) if os.path.isdir(os.path.join(data_loc, tname))]
     # Analyze treatment by treatment
@@ -34,12 +35,19 @@ if __name__ == "__main__":
             # Make an analysis directory here
             mkdir_p(os.path.join(rep_loc, "analysis"))
             # Run local MABE using treatment config and some extra cmdline args needed for analysis mode
-            configFileName = os.path.join(rep_loc, treatment + ".cfg")
-            analyzeOutputDirectory = os.path.join(rep_loc, "analysis") + "/"
+            #analyzeOutputDirectory = os.path.join(rep_loc, "analysis") + "/"
             genomeFileToAnalyze = os.path.join(rep_loc, "output", settings["analysis"]["genomeFileToAnalyze"])
             repeats = str(settings["analysis"]["genome_trials"])
-            log = os.path.join(analyzeOutputDirectory, "analysis_log")
-            cmd = "./config/MABE configFileName %s analyzeMode 1 analyzeOutputDirectory %s repeats %s MAIN_genomeFileToAnalyze %s > %s" % (configFileName, analyzeOutputDirectory, repeats, genomeFileToAnalyze, log)
-            process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
-            output, err = process.communicate()
+            # Analyze genome in each test environment
+            test_envs = [ename for ename in os.listdir(test_envs_loc) if ".cfg" in ename]
+            for env in test_envs:
+                configFileName = os.path.join(test_envs_loc, env)
+                analyzeOutputDirectory = os.path.join(rep_loc, "analysis", "env__" + env.replace(".cfg",""))
+                log = os.path.join(analyzeOutputDirectory, "analysis_log")
+                print analyzeOutputDirectory
+                # Build command to run
+                cmd = "./config/MABE configFileName %s analyzeMode 1 analyzeOutputDirectory %s repeats %s MAIN_genomeFileToAnalyze %s > %s" % (configFileName, analyzeOutputDirectory, repeats, genomeFileToAnalyze, log)
+                # Spawn process for command; wait for it to come back
+                process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+                output, err = process.communicate()
     print ("DONE")
