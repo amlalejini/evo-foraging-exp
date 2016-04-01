@@ -20,6 +20,7 @@ if __name__ == "__main__":
         settings = json.load(fp)
     data_loc = settings["analysis"]["exp_data_location"]
     test_envs_loc = settings["analysis"]["test_envs_loc"]
+    analysis_dump = settings["analysis"]["analysis_dump"]
     # Grab list of treatments in data location
     treatments = [tname for tname in os.listdir(data_loc) if os.path.isdir(os.path.join(data_loc, tname))]
     # Analyze treatment by treatment
@@ -42,9 +43,9 @@ if __name__ == "__main__":
             test_envs = [ename for ename in os.listdir(test_envs_loc) if ".cfg" in ename]
             for env in test_envs:
                 configFileName = os.path.join(test_envs_loc, env)
-                analyzeOutputDirectory = os.path.join(rep_loc, "analysis", "env__" + env.replace(".cfg",""))
+                analyzeOutputDirectory = os.path.join(analysis_dump, treatment, rep, "env__" + env.replace(".cfg","")) + "/"
                 log = os.path.join(analyzeOutputDirectory, "analysis_log")
-                print analyzeOutputDirectory
+                mkdir_p(analyzeOutputDirectory)
                 # Build command to run
                 cmd = "./config/MABE configFileName %s analyzeMode 1 analyzeOutputDirectory %s repeats %s MAIN_genomeFileToAnalyze %s > %s" % (configFileName, analyzeOutputDirectory, repeats, genomeFileToAnalyze, log)
                 # Spawn process for command; wait for it to come back
