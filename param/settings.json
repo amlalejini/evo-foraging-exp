@@ -7,7 +7,7 @@
       "uid": "P"
     },
     "FORAGE_granularity": {
-      "values": [1, 2, 4, 8, 16],
+      "values": [1, 2, 4, 8, 16, 32],
       "uid": "G"
     },
     "FORAGE_areaSize": {
@@ -15,8 +15,12 @@
       "uid": "A"
     },
     "FORAGE_tickLength": {
-      "values": [256],
+      "values": [128, 256],
       "uid": "T"
+    },
+    "optimizer": {
+      "values": ["GA", "Tournament2"],
+      "uid": "O"
     }
   },
   "generate_run_list": false,
@@ -25,6 +29,7 @@
     "rep_start": 1,
     "rep_end": 10
   },
+  "generate_qsub_files": true,
   "analysis": {
     "exp_data_location": "/home/parallels/Desktop/scratch/probgates",
     "test_envs_loc": "./config",

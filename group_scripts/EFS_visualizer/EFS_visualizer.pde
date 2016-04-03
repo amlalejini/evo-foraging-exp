@@ -10,23 +10,31 @@ Table table;
 int t = 0;
 //time,foodCollected,xLocation,yLocation,mapSize,map
 void setup(){
-    String exp_path = "/home/parallels/Desktop/probgates/";
-    File exp_dir = new File(exp_path);
-    String[] treatments = exp_dir.list();    
-    for (String treatment : treatments) {
-      String treatment_path = exp_path + treatment + "/";
-      File treatment_dir = new File(treatment_path);
-      String[] reps = treatment_dir.list();
-      for (String rep : reps) {
-        String rep_analysis_path = treatment_path + rep + "/analysis/";
-        String org_data_fp = rep_analysis_path + "org-0_trial-0_analysis.csv";
-        HashMap<String, String> org_map = new HashMap<String, String>();
-        org_map.put("org_data_fp", org_data_fp);
-        org_map.put("rep", rep);
-        org_map.put("treatment", treatment);
-        orgs_to_draw.add(org_map);
-      }
-    }
+    //String exp_path = "/home/parallels/Desktop/probgates/";
+    //File exp_dir = new File(exp_path);
+    //String[] treatments = exp_dir.list();    
+    //for (String treatment : treatments) {
+    // String treatment_path = exp_path + treatment + "/";
+    // File treatment_dir = new File(treatment_path);
+    // String[] reps = treatment_dir.list();
+    // for (String rep : reps) {
+    //   String rep_analysis_path = treatment_path + rep + "/analysis/";
+    //   String org_data_fp = rep_analysis_path + "org-0_trial-0_analysis.csv";
+    //   HashMap<String, String> org_map = new HashMap<String, String>();
+    //   org_map.put("org_data_fp", org_data_fp);
+    //   org_map.put("rep", rep);
+    //   org_map.put("treatment", treatment);
+    //   orgs_to_draw.add(org_map);
+    // }
+    //}
+    ////////////////
+    // Single file garbo
+    ////////////////
+    HashMap<String, String> org_map = new HashMap<String, String>(); 
+    org_map.put("org_data_fp", "/home/parallels/devo_ws/BasicMarkovBrainTemplate/analysis/org-4_trial-0_analysis.csv");
+    org_map.put("rep", "test");
+    org_map.put("treatment", "test");
+    orgs_to_draw.add(org_map);
     size(704,704);
     //table = loadTable(filename, "header");
     cols[0]=color(0,0,0);

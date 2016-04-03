@@ -84,3 +84,41 @@ if __name__ == "__main__":
             rl_content += "%s\n\n" % cmd
         with open(os.path.join("config", "run_list"), "w") as fp:
             fp.write(rl_content)
+
+    if settings["generate_qsub_files"]:
+        for treatment in cfgs:
+            qsub_content = '''#!/bin/bash --login
+
+### Define Resources needed:
+#PBS -l walltime=144:00:00
+#PBS -l mem=8gb
+#PBS -l nodes=1:ppn=1
+#PBS -l feature=intel14
+### Name job
+#PBS -N %s
+### Email stuff
+#PBS -M lalejini@msu.edu
+#PBS -m ae
+### Setup multiple replicates
+#PBS -t 1-10
+### Combine and redirect output/error logs
+#PBS -j oe
+
+TREATMENT_NAME=%s
+DATA_DIR=${HOME}/Data/evo-foraging-exp/runs3.0
+REP_DIR=${DATA_DIR}/${TREATMENT_NAME}/rep_${PBS_ARRAYID}
+
+cd ${PBS_O_WORKDIR}
+mkdir -p ${REP_DIR}
+mkdir -p ${REP_DIR}/output
+
+cp ../config/${TREATMENT_NAME}.cfg ${REP_DIR}
+cp ../config/MABE ${REP_DIR}
+
+cd ${REP_DIR}
+./MABE configFileName ./${TREATMENT_NAME}.cfg outputDirectory ./output/ randomSeed ${PBS_ARRAYID} > ${REP_DIR}/log 2>&1
+
+qstat -f ${PBS_JOBID}
+''' % (treatment, treatment)
+            with open("qsub_config/%s.qsub" % treatment, "w") as fp:
+                fp.write(qsub_content)
