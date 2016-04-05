@@ -1,6 +1,6 @@
 import json, csv, os, errno
-import matplotlib.pyplot as plt
-from pandas import *
+#import matplotlib.pyplot as plt
+#from pandas import *
 
 def ravi_script(dom_file = None):
     F=open(dom_file,"rt")
@@ -283,8 +283,14 @@ if __name__ == "__main__":
                     if not loc_id in visit_dict.keys(): visit_dict[loc_id] = 0
                     visit_dict[loc_id] += 1
                 print "Sum of visits: " + str(sum(visit_dict.values()))
-                revisit_dist = [0 for i in range(0, settings["analysis"]["org_lifespan"])]
-                for visits in visit_dict.values(): revisit_dist[visits] += 1
+                revisit_dist = [0 for i in range(0, settings["analysis"]["org_lifespan"] + 1)]
+                for visits in visit_dict.values(): 
+                    try:
+                        revisit_dist[visits] += 1
+                    except:
+                        print len(revisit_dist)
+                        print visits
+                        exit(-1)
                 revisit_dist_str = str(revisit_dist).replace(" ", "")
                 revisit_csv_content += "%s,%s,%s,\"%s\"\n" % (treatment, rep, env, revisit_dist_str)
                 # Generate csv for this bro
@@ -295,3 +301,4 @@ if __name__ == "__main__":
         fp.write(fitness_csv_content)
     with open(os.path.join(metrics_dump, "revisit_distributions.csv"), "w") as fp:
         fp.write(revisit_csv_content)
+    print ("DONE")
