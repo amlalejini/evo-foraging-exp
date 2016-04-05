@@ -1,6 +1,9 @@
 import json, csv, os, errno
-import matplotlib.pyplot as plt
-from pandas import *
+try:
+    import matplotlib.pyplot as plt
+    from pandas import *
+except:
+    print ("Can't load either matplotlib or pandas. Hopefully you didn't really need them.")
 
 def ravi_script(dom_file = None):
     F=open(dom_file,"rt")
@@ -239,6 +242,8 @@ if __name__ == "__main__":
 
     fitness_csv_content = "treatment,rep,env,fitness\n"
     revisit_csv_content = "treatment,rep,env,revisit_distribution\n"
+    area_visit_csv_content = "treatment,rep,env,visit_distribution\n"
+
     # Grab list of treatments in data location
     treatments = [tname for tname in os.listdir(analysis_data_loc) if os.path.isdir(os.path.join(analysis_data_loc, tname))]
     # Analyze treatment by treatment
@@ -275,6 +280,8 @@ if __name__ == "__main__":
                 #  first parse location dicts
                 x_path = dom_dict["xLocation"].strip("[]").split(",")
                 y_path = dom_dict["yLocation"].strip("[]").split(",")
+
+                # PATH VISITS
                 #  both paths should be of equal length
                 visit_dict = {}
                 for t in range(0, len(x_path)):
@@ -283,10 +290,25 @@ if __name__ == "__main__":
                     if not loc_id in visit_dict.keys(): visit_dict[loc_id] = 0
                     visit_dict[loc_id] += 1
                 print "Sum of visits: " + str(sum(visit_dict.values()))
-                revisit_dist = [0 for i in range(0, settings["analysis"]["org_lifespan"])]
+                revisit_dist = [0 for i in range(0, settings["analysis"]["org_lifespan"] + 1)]
                 for visits in visit_dict.values(): revisit_dist[visits] += 1
                 revisit_dist_str = str(revisit_dist).replace(" ", "")
                 revisit_csv_content += "%s,%s,%s,\"%s\"\n" % (treatment, rep, env, revisit_dist_str)
+
+                # ALL LOCATION VISITS
+                area = [[0 for i in range(0, settings["analysis"]["world_width"])] for k in range(0, settings["analysis"]["world_width"])]
+                for t in range(0, len(x_path)):
+                    if x_path[t] == "-1" or y_path[t] == "-1": continue
+                    area[int(x_path[t])][int(y_path[t])] += 1
+                area_visit_dist = [0 for i in range(0, settings["analysis"]["org_lifespan"] + 1)]
+                for a0 in range(0, len(area)):
+                    for a1 in range(0, len(area[a0])): area_visit_dist[area[a0][a1]] += 1
+                # correct area visit dist for 'unvisitable' space
+                unvisitable = settings["analysis"]["world_width"]**2 - settings["analysis"]["visitable_world_width"]**2
+                area_visit_dist[0] -= unvisitable
+                area_visit_dist_str = str(area_visit_dist).replace(" ", "")
+                area_visit_csv_content += "%s,%s,%s,\"%s\"\n" % (treatment, rep, env, area_visit_dist_str)
+
                 # Generate csv for this bro
                 fitness = float(dom_dict["score"])
                 fitness_csv_content += "%s,%s,%s,%f\n" % (treatment, rep, env, fitness)
@@ -295,3 +317,5 @@ if __name__ == "__main__":
         fp.write(fitness_csv_content)
     with open(os.path.join(metrics_dump, "revisit_distributions.csv"), "w") as fp:
         fp.write(revisit_csv_content)
+    with open(os.path.join(metrics_dump, "area_visit_distributions.csv"), "w") as fp:
+        fp.write(area_visit_csv_content)

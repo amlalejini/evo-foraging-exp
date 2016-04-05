@@ -36,6 +36,8 @@
     "genome_trials": 1,
     "genomeFileToAnalyze": "genome_50000.csv",
     "org_lifespan": 1024,
+    "visitable_world_width": 70,
+    "world_width": 88,
     "analysis_dump": "/home/parallels/Desktop/scratch/testexp",
     "metrics_dump": "/home/parallels/Desktop/scratch/metrics-dump",
     "vid_frame_dump": "/home/parallels/devo_ws/evo-foraging-exp/group_scripts/EFS_visualizer/vid_dump",
