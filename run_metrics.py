@@ -237,7 +237,8 @@ if __name__ == "__main__":
     #dump_loc = settings["analysis"]["analysis_dump"]
     #mkdir_p(dump_loc)
 
-    csv_content = "treatment,rep,env,fitness\n"
+    fitness_csv_content = "treatment,rep,env,fitness\n"
+    revisit_csv_content = "treatment,rep,env,revisit_distribution\n"
     # Grab list of treatments in data location
     treatments = [tname for tname in os.listdir(analysis_data_loc) if os.path.isdir(os.path.join(analysis_data_loc, tname))]
     # Analyze treatment by treatment
@@ -268,11 +269,29 @@ if __name__ == "__main__":
                 ####################################
                 # Run metrics
                 ####################################
-                gen_revisit_metrics(dom = dom_dict, dump_loc = rep_metrics_dump, heatmaps = True, revisit_dist = True, env = env)
+                #gen_revisit_metrics(dom = dom_dict, dump_loc = rep_metrics_dump, heatmaps = True, revisit_dist = True, env = env)
                 #gen_ang_autocorrelation_metrics(dom = dom_dict, dump_loc = rep_metrics_dump, env = env)
+                # Generate revist csv
+                #  first parse location dicts
+                x_path = dom_dict["xLocation"].strip("[]").split(",")
+                y_path = dom_dict["yLocation"].strip("[]").split(",")
+                #  both paths should be of equal length
+                visit_dict = {}
+                for t in range(0, len(x_path)):
+                    if x_path[t] == "-1" or y_path[t] == "-1": continue
+                    loc_id = x_path[t] + "," + y_path[t]
+                    if not loc_id in visit_dict.keys(): visit_dict[loc_id] = 0
+                    visit_dict[loc_id] += 1
+                print "Sum of visits: " + str(sum(visit_dict.values()))
+                revisit_dist = [0 for i in range(0, settings["analysis"]["org_lifespan"])]
+                for visits in visit_dict.values(): revisit_dist[visits] += 1
+                revisit_dist_str = str(revisit_dist).replace(" ", "")
+                revisit_csv_content += "%s,%s,%s,\"%s\"\n" % (treatment, rep, env, revisit_dist_str)
                 # Generate csv for this bro
                 fitness = float(dom_dict["score"])
-                csv_content += "%s,%s,%s,%f\n" % (treatment, rep, env, fitness)
+                fitness_csv_content += "%s,%s,%s,%f\n" % (treatment, rep, env, fitness)
 
     with open(os.path.join(metrics_dump, "fitness.csv"), "w") as fp:
-        fp.write(csv_content)
+        fp.write(fitness_csv_content)
+    with open(os.path.join(metrics_dump, "revisit_distributions.csv"), "w") as fp:
+        fp.write(revisit_csv_content)
