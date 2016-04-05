@@ -38,8 +38,8 @@
     "org_lifespan": 1024,
     "visitable_world_width": 70,
     "world_width": 88,
-    "analysis_dump": "/home/parallels/Desktop/scratch/testexp",
-    "metrics_dump": "/home/parallels/Desktop/scratch/metrics-dump",
+    "analysis_dump": "/mnt/home/lalejini/Data/evo-foraging-exp/03-27-probgates/probgates-mabe-analysis",
+    "metrics_dump": "/mnt/home/lalejini/Data/evo-foraging-exp/03-27-probgates/probgates-mabe-analysis",
     "vid_frame_dump": "/home/parallels/devo_ws/evo-foraging-exp/group_scripts/EFS_visualizer/vid_dump",
     "vid_dump": "/home/parallels/Desktop/probgates-analysis/vids"
   }

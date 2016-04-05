@@ -5,6 +5,7 @@ try:
 except:
     print ("Can't load either matplotlib or pandas. Hopefully you didn't really need them.")
 
+
 def ravi_script(dom_file = None):
     F=open(dom_file,"rt")
     theContent=F.read()
@@ -319,3 +320,4 @@ if __name__ == "__main__":
         fp.write(revisit_csv_content)
     with open(os.path.join(metrics_dump, "area_visit_distributions.csv"), "w") as fp:
         fp.write(area_visit_csv_content)
+    print ("DONE")
