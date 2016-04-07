@@ -242,8 +242,8 @@ if __name__ == "__main__":
     #mkdir_p(dump_loc)
 
     fitness_csv_content = "treatment,rep,env,fitness\n"
-    revisit_csv_content = "treatment,rep,env,revisit_distribution\n"
     area_visit_csv_content = "treatment,rep,env,visit_distribution\n"
+    path_csv_content = "treatment,rep,env,x_path,y_path\n"
 
     # Grab list of treatments in data location
     treatments = [tname for tname in os.listdir(analysis_data_loc) if os.path.isdir(os.path.join(analysis_data_loc, tname))]
@@ -281,20 +281,7 @@ if __name__ == "__main__":
                 #  first parse location dicts
                 x_path = dom_dict["xLocation"].strip("[]").split(",")
                 y_path = dom_dict["yLocation"].strip("[]").split(",")
-
-                # PATH VISITS
-                #  both paths should be of equal length
-                visit_dict = {}
-                for t in range(0, len(x_path)):
-                    if x_path[t] == "-1" or y_path[t] == "-1": continue
-                    loc_id = x_path[t] + "," + y_path[t]
-                    if not loc_id in visit_dict.keys(): visit_dict[loc_id] = 0
-                    visit_dict[loc_id] += 1
-                print "Sum of visits: " + str(sum(visit_dict.values()))
-                revisit_dist = [0 for i in range(0, settings["analysis"]["org_lifespan"] + 1)]
-                for visits in visit_dict.values(): revisit_dist[visits] += 1
-                revisit_dist_str = str(revisit_dist).replace(" ", "")
-                revisit_csv_content += "%s,%s,%s,\"%s\"\n" % (treatment, rep, env, revisit_dist_str)
+                path_csv_content += "%s,%s,%s,\"%s\",\"%s\"\n" % (treatment, rep, env, str(x_path).replace(" ", ""), str(y_path).replace(" ", ""))
 
                 # ALL LOCATION VISITS
                 area = [[0 for i in range(0, settings["analysis"]["world_width"])] for k in range(0, settings["analysis"]["world_width"])]
@@ -316,8 +303,8 @@ if __name__ == "__main__":
 
     with open(os.path.join(metrics_dump, "fitness.csv"), "w") as fp:
         fp.write(fitness_csv_content)
-    with open(os.path.join(metrics_dump, "revisit_distributions.csv"), "w") as fp:
-        fp.write(revisit_csv_content)
     with open(os.path.join(metrics_dump, "area_visit_distributions.csv"), "w") as fp:
         fp.write(area_visit_csv_content)
+    with open(os.path.join(metrics_dump, "paths.csv"), "w") as fp:
+        fp.write(path_csv_content)
     print ("DONE")
