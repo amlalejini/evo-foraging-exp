@@ -31,7 +31,7 @@
   },
   "generate_qsub_files": true,
   "analysis": {
-    "exp_data_location": "/home/parallels/Desktop/scratch/probgates",
+    "exp_data_location": "/mnt/home/lalejini/Data/evo-foraging-exp/03-27-probgates/probgates",
     "test_envs_loc": "./config",
     "genome_trials": 1,
     "genomeFileToAnalyze": "genome_50000.csv",
