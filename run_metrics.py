@@ -281,12 +281,15 @@ if __name__ == "__main__":
                 #  first parse location dicts
                 x_path = dom_dict["xLocation"].strip("[]").split(",")
                 y_path = dom_dict["yLocation"].strip("[]").split(",")
+
+                x_path = [int(i) for i in x_path]
+                y_path = [int(i) for i in y_path]
                 path_csv_content += "%s,%s,%s,\"%s\",\"%s\"\n" % (treatment, rep, env, str(x_path).replace(" ", ""), str(y_path).replace(" ", ""))
 
                 # ALL LOCATION VISITS
                 area = [[0 for i in range(0, settings["analysis"]["world_width"])] for k in range(0, settings["analysis"]["world_width"])]
                 for t in range(0, len(x_path)):
-                    if x_path[t] == "-1" or y_path[t] == "-1": continue
+                    if x_path[t] == -1 or y_path[t] == -1: continue
                     area[int(x_path[t])][int(y_path[t])] += 1
                 area_visit_dist = [0 for i in range(0, settings["analysis"]["org_lifespan"] + 1)]
                 for a0 in range(0, len(area)):
