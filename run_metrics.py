@@ -308,7 +308,7 @@ if __name__ == "__main__":
                 #gen_revisit_metrics(dom = dom_dict, dump_loc = rep_metrics_dump, heatmaps = True, revisit_dist = True, env = env)
                 #gen_ang_autocorrelation_metrics(dom = dom_dict, dump_loc = rep_metrics_dump, env = env)
                 # Collect some brain stats (but only in env this org evolved in -- treatment == env)
-                if treatment in env:
+                if treatment.replace("_U-50000", "") in env:
                     print "%s:%s" % (treatment, env)
                     brain_stats = get_brain_stats(dom = dom_dict, brain_stats_settings = settings["analysis"]["brain_stats"])
                     brain_stats_summary += "  Gates Used: %s\n  In Connections: %s\n" % (brain_stats["gates_used"], brain_stats["in_connections"])
