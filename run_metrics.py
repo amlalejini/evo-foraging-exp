@@ -1,4 +1,4 @@
-import json, csv, os, errno
+import json, csv, os, errno, ast
 try:
     import matplotlib.pyplot as plt
     from pandas import *
@@ -222,6 +222,30 @@ def gen_ang_autocorrelation_metrics(dom = None, dump_loc = None):
         plt.savefig(os.path.join(dump_loc, "rad_dist_%d.png" % t))
         plt.clf()
 
+def get_brain_stats(dom = None, brain_stats_settings = None):
+    '''
+    Takes dominant file dictionary as input. Outputs dictionary of brain stats
+     * Stats that I want:
+       * Gates used: {"deterministic": X, "probabilistic": Y}
+       * Input-Connected Sensors: {"visual_1": [X0, X1], "visual_2": [Y0, Y1], ...}
+    '''
+    # Get gates used by brain of dom
+    gates_used = {gate_type:dom[gate_type] for gate_type in brain_stats_settings["gate_types"]}
+    in_connections = {}
+    for connection_type in brain_stats_settings["brain_connections"]:
+        sensor = connection_type.split(":")[0]
+        sensor_bit = connection_type.split(":")[1]
+        if not sensor in in_connections: in_connections[sensor] = []
+        in_connections[sensor].append(0)
+    # Get in connections for brain gates (what is brain using?)
+    gate_ins = ast.literal_eval(dom["gate_ins"])
+    for gate in gate_ins:
+        for conn in gate:
+            pos = brain_stats_settings["brain_connections"][conn].split(":")[1]
+            sensor = brain_stats_settings["brain_connections"][conn].split(":")[0]
+            in_connections[sensor][int(pos)] += 1
+    return {"gates_used": gates_used, "in_connections": in_connections}
+
 def mkdir_p(path):
     try:
         os.makedirs(path)
@@ -237,30 +261,36 @@ if __name__ == "__main__":
         settings = json.load(fp)
     analysis_data_loc = settings["analysis"]["analysis_dump"]
     metrics_dump = settings["analysis"]["metrics_dump"]
-    # ensure that analysis dump exists
-    #dump_loc = settings["analysis"]["analysis_dump"]
-    #mkdir_p(dump_loc)
 
     fitness_csv_content = "treatment,rep,env,fitness\n"
     area_visit_csv_content = "treatment,rep,env,visit_distribution\n"
     path_csv_content = "treatment,rep,env,x_path,y_path\n"
-
+    brain_stats_summary = ""
     # Grab list of treatments in data location
     treatments = [tname for tname in os.listdir(analysis_data_loc) if os.path.isdir(os.path.join(analysis_data_loc, tname))]
     # Analyze treatment by treatment
     for treatment in treatments:
         print treatment
+        # handle brain stats stuff for this treatment
+        brain_stats_summary += "===============================\n%s\n" % treatment
+        treatment_brain_stats = {}
+        # build treatment location
         treatment_loc = os.path.join(analysis_data_loc, treatment)
+        # get all replicates
         replicates = [rname for rname in os.listdir(treatment_loc) if os.path.isdir(os.path.join(treatment_loc, rname))]
         # Analyze each replicate
         for rep in replicates:
             print rep
+            # rep header for brain stats summary
+            brain_stats_summary += "%s\n" % rep
+            # build rep location
             rep_loc = os.path.join(treatment_loc, rep)
-
-            # Analyze each environment organism was tested in
+            # get all environments for this replicate
             envs = [ename for ename in os.listdir(rep_loc) if "env__" in ename]
+            # build replicate metrics dump
             rep_metrics_dump = os.path.join(metrics_dump, treatment, rep)
             mkdir_p(rep_metrics_dump)
+            # Analyze each environment organism was tested in
             for env in envs:
                 print "ENV: " + str(env)
                 env_loc = os.path.join(rep_loc, env)
@@ -277,6 +307,11 @@ if __name__ == "__main__":
                 ####################################
                 #gen_revisit_metrics(dom = dom_dict, dump_loc = rep_metrics_dump, heatmaps = True, revisit_dist = True, env = env)
                 #gen_ang_autocorrelation_metrics(dom = dom_dict, dump_loc = rep_metrics_dump, env = env)
+                # Collect some brain stats (but only in env this org evolved in -- treatment == env)
+                if treatment in env:
+                    print "%s:%s" % (treatment, env)
+                    brain_stats = get_brain_stats(dom = dom_dict, brain_stats_settings = settings["analysis"]["brain_stats"])
+                    brain_stats_summary += "  Gates Used: %s\n  In Connections: %s\n" % (brain_stats["gates_used"], brain_stats["in_connections"])
                 # Generate revist csv
                 #  first parse location dicts
                 x_path = dom_dict["xLocation"].strip("[]").split(",")
@@ -303,7 +338,8 @@ if __name__ == "__main__":
                 # Generate csv for this bro
                 fitness = float(dom_dict["score"])
                 fitness_csv_content += "%s,%s,%s,%f\n" % (treatment, rep, env, fitness)
-
+    with open(os.path.join(metrics_dump, "brain_stats_summary.txt"), "w") as fp:
+        fp.write(brain_stats_summary)
     with open(os.path.join(metrics_dump, "fitness.csv"), "w") as fp:
         fp.write(fitness_csv_content)
     with open(os.path.join(metrics_dump, "area_visit_distributions.csv"), "w") as fp:
