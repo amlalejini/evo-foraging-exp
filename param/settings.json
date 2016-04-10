@@ -44,7 +44,8 @@
     "vid_dump": "/home/parallels/Desktop/probgates-analysis/vids",
     "brain_stats": {
       "gate_types": ["ProbabilisticGates", "DeterministicGates"],
-      "brain_connections": ["visual_1:0", "visual_1:1", "visual_2:0", "visual_2:1", "visual_4:0", "visual_4:1", "visual_8:0", "visual_8:1", "orientation:0", "orientation:1", "hidden:0", "hidden:1", "hidden:2", "out:0", "out:1"]
+      "brain_connections": ["visual_1:0", "visual_1:1", "visual_2:0", "visual_2:1", "visual_4:0", "visual_4:1", "visual_8:0", "visual_8:1", "orientation:0", "orientation:1", "hidden:0", "hidden:1", "hidden:2", "out:0", "out:1"],
+      "connection_types": ["visual_1", "visual_2", "visual_4", "visual_8", "orientation", "hidden", "out"]
     }
   }
 }

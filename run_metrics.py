@@ -267,6 +267,7 @@ if __name__ == "__main__":
     area_visit_csv_content = "treatment,rep,env,visit_distribution\n"
     path_csv_content = "treatment,rep,env,x_path,y_path\n"
     brain_stats_summary = ""
+    exp_brain_connectivity = {}
     # Grab list of treatments in data location
     treatments = [tname for tname in os.listdir(analysis_data_loc) if os.path.isdir(os.path.join(analysis_data_loc, tname))]
     # Analyze treatment by treatment
@@ -274,7 +275,7 @@ if __name__ == "__main__":
         print treatment
         # handle brain stats stuff for this treatment
         brain_stats_summary += "===============================\n%s\n" % treatment
-        treatment_brain_stats = {}
+        exp_brain_connectivity[treatment] = {}
         # build treatment location
         treatment_loc = os.path.join(analysis_data_loc, treatment)
         # get all replicates
@@ -312,6 +313,7 @@ if __name__ == "__main__":
                 if treatment.replace("_U-50000", "") in env:
                     brain_stats = get_brain_stats(dom = dom_dict, brain_stats_settings = settings["analysis"]["brain_stats"])
                     brain_stats_summary += "  Gates Used: %s\n  In Connections: %s\n" % (brain_stats["gates_used"], brain_stats["in_connections"])
+                    exp_brain_connectivity[treatment][rep] = brain_stats
                 # Generate revist csv
                 #  first parse location dicts
                 x_path = dom_dict["xLocation"].strip("[]").split(",")
@@ -338,6 +340,27 @@ if __name__ == "__main__":
                 # Generate csv for this bro
                 fitness = float(dom_dict["score"])
                 fitness_csv_content += "%s,%s,%s,%f\n" % (treatment, rep, env, fitness)
+    # Get brain stats probs
+    sensor_usage_by_treatment = {}
+    for treatment in exp_brain_connectivity:
+        sensor_usage_by_treatment[treatment] = {conn_type:0 for conn_type in settings["analysis"]["brain_stats"]["connection_types"]}
+        sensor_usage_by_treatment[treatment]["total"] = 0
+        for rep in exp_brain_connectivity[treatment]:
+            brain_stats = exp_brain_connectivity[treatment][rep]
+            for sensor in settings["analysis"]["brain_stats"]["connection_types"]:
+                conns = brain_stats["in_connections"][sensor]
+                connected = False
+                for conn in conns:
+                    if conn > 0: connected = True
+                if connected: sensor_usage_by_treatment[treatment][sensor] += 1
+            sensor_usage_by_treatment[treatment]["total"] += 1
+
+    brain_stats_summary += "\n===================================\nSENSOR USAGE BY TREATMENT\n"
+    for treatment in sensor_usage_by_treatment:
+        brain_stats_summary += "\n" + treatment + "\n"
+        for sensor in sensor_usage_by_treatment[treatment]:
+            brain_stats_summary += "    %s: %d/%d\n" % (sensor, sensor_usage_by_treatment[treatment][sensor], sensor_usage_by_treatment[treatment]["total"])
+
     with open(os.path.join(metrics_dump, "brain_stats_summary.txt"), "w") as fp:
         fp.write(brain_stats_summary)
     with open(os.path.join(metrics_dump, "fitness.csv"), "w") as fp:
