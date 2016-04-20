@@ -75,10 +75,10 @@ if __name__ == "__main__":
     eig_pairs.sort(key = itemgetter(0), reverse = True)
     # for i in range(0, len(eig_pairs)):
     #     print "%d: %s" % (i, str(eig_pairs[i][0]))
-    #     if eig_pairs[i][0] < 10: break
+        #if eig_pairs[i][0] < 10: break
     #matrix_w = np.hstack(eig_pairs[0:46][1])
     listy = []
-    for i in range(0, 46):
+    for i in range(0, 30):
         listy.append(np.asarray(eig_pairs[i][1]).reshape(7744,1))
     tupy = tuple(listy)
     matrix_w = np.hstack(tupy)
@@ -97,16 +97,16 @@ if __name__ == "__main__":
 
     # Cluster stuff
     kcluster = KMeansCluster(distanceMetric = distanceMetric, calculateCentroid = calcCentroid, data = cluster_data, force_k_bins = True)
-    results = kcluster.run(num_bins = 2)
+    results = kcluster.run(num_bins = 8)
     # Report clustered things (treatment.rep)
     for cluster in results["cluster_results"]:
         print "CLUSTER: " + str(cluster["bin_id"])
         for thing in cluster["data"]:
             print "    %s" % (thing["label"])
 
-    # plt.plot(transformed[0,0:60], transformed[1,0:60], 'o', markersize=7, color='blue', alpha=0.5, label='class1')
-    # plt.xlabel('x_values')
-    # plt.ylabel('y_values')
-    # plt.legend()
-    # plt.title('Transformed samples with class labels')
-    # plt.show()
+    plt.plot(transformed[0,0:60], transformed[1,0:60], 'o', markersize=7, color='blue', alpha=0.5, label='class1')
+    plt.xlabel('x_values')
+    plt.ylabel('y_values')
+    plt.legend()
+    plt.title('Transformed samples with class labels')
+    plt.show()

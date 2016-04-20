@@ -65,3 +65,5 @@ target/
 vid_dump/
 
 MABE
+
+*.npy

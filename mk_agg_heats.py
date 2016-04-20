@@ -24,8 +24,11 @@ if __name__ == "__main__":
         # Extract relevant data:
         path_treatment = path[column_idxs["treatment"]]
         path_rep = path[column_idxs["rep"]]
+        path_env = path[column_idxs["env"]]
         path_x = ast.literal_eval(path[column_idxs["x_path"]].replace("-1,", ""))
         path_y = ast.literal_eval(path[column_idxs["y_path"]].replace("-1,", ""))
+        if path_env.replace("env__", "") != path_treatment.replace("_U-50000", ""): continue
+        if len(set(path_x)) == 1 and len(set(path_y)) == 1: continue
         # Have we processed this treatment before?
         if not path_treatment in agg_maps:
             # Add treatment to dictionary
@@ -34,7 +37,7 @@ if __name__ == "__main__":
         if not path_rep in agg_maps[path_treatment]:
             # Make a new aggregate map for this replicate
             agg_maps[path_treatment][path_rep] = [[0 for _ in range(0, world_width)] for _ in range(0, world_width)]
-        # Add path to map
+        # add path to map
         for i in range(0, len(path_x)):
             agg_maps[path_treatment][path_rep][path_y[i]][path_x[i]] += 1
     # # Sanity check for above functionality
