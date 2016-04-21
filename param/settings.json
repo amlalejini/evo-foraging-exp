@@ -32,7 +32,7 @@
   "generate_qsub_files": true,
   "analysis": {
     "exp_data_location": "/mnt/home/lalejini/Data/evo-foraging-exp/03-27-probgates/probgates",
-    "test_envs_loc": "./config",
+    "test_envs_loc": "./test_envs",
     "genome_trials": 1,
     "genomeFileToAnalyze": "genome_50000.csv",
     "org_lifespan": 1024,
