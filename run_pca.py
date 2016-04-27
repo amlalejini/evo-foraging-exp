@@ -36,7 +36,7 @@ if __name__ == "__main__":
     world_width = settings["analysis"]["world_width"]
 
     # Load the aggregate heat maps (each map is a data point to be clustered)
-    agg_maps_fn = "agg_maps_homes-NOG16P0.csv"
+    agg_maps_fn = "agg_maps_homes.csv"
     agg_maps_path = os.path.join(metrics_dump, agg_maps_fn)
     csv.field_size_limit(sys.maxsize)
     with open(agg_maps_path) as fp:
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         print "%d: %s (%s)" % (i, str(eig_pairs[i][0]), str(percent_var_explained))
 
     # How many dimensions from PCA are we going to use?
-    dimensions_to_use = 37
+    dimensions_to_use = 2
     listy = []
     for i in range(0, dimensions_to_use):
         listy.append(np.asarray(eig_pairs[i][1]).reshape(full_num_dimensions, 1))
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
     # Cluster stuff
     kcluster = KMeansCluster(distanceMetric = distanceMetric, calculateCentroid = calcCentroid, data = cluster_data, force_k_bins = True)
-    results = kcluster.run(num_bins = 5)
+    results = kcluster.run(num_bins = 6)
     # Report clustered things (treatment.rep)
     for cluster in results["cluster_results"]:
         print "CLUSTER: " + str(cluster["bin_id"])
@@ -147,7 +147,7 @@ if __name__ == "__main__":
 
     # Plot clusters
     # results: {"cluster_results": [{"centroid": {"label": "", "data": []}, "data": [{"label": "", "data": []}]}, {}]}
-    treatment_shapes = {"T-256_G-1_A-64_P-0": "o", "T-256_G-1_A-64_P-1.0": "s","T-256_G-2_A-64_P-0": "D", "T-256_G-2_A-64_P-1.0": "*", "T-256_G-16_A-64_P-0": "^", "T-256_G-16_A-64_P-1.0": "+"}
+    treatment_shapes = {"T-256_G-1_A-64_P-0": "o", "T-256_G-1_A-64_P-1.0": "s","T-256_G-2_A-64_P-0": "D", "T-256_G-2_A-64_P-1.0": "*", "T-256_G-16_A-64_P-0": "^", "T-256_G-16_A-64_P-1.0": "h"}
     cluster_colors = ["r", "b", "y", "g", "m", "c"]
     plt.hold(True)
     for ci in range(0, len(results["cluster_results"])):
@@ -158,6 +158,9 @@ if __name__ == "__main__":
         plt.plot([centroid_x], [centroid_y], "x", color = cluster_colors[ci % len(cluster_colors)], alpha = 1.0)
         for point in this_cluster["data"]:
             pltlabel = point["label"].split(".rep")[0].replace("_U-50000", "")
-            plt.plot([point["data"][0]], [point["data"][1]], marker = treatment_shapes[pltlabel], color = cluster_colors[ci % len(cluster_colors)], alpha = 0.5)
-
+            plt.plot([point["data"][0]], [point["data"][1]], marker = treatment_shapes[pltlabel], markersize = 20, color = cluster_colors[ci % len(cluster_colors)], alpha = 0.5)
+    # cnt = 0
+    # for s in treatment_shapes:
+    #     plt.plot([cnt + 10], [1000],  markersize = 20, marker = treatment_shapes[s], color = "black")
+    #     cnt += 1
     plt.show()
