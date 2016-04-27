@@ -1,5 +1,6 @@
 {
   "settings_template": "param/settings_template.cfg",
+  "exp_data_dump_partial_path": "scratch/data/evo-foraging-exp", 
   "config_output": "config/",
   "experiment_config": {
     "FORAGE_predictability": {

@@ -23,7 +23,7 @@ if __name__ == "__main__":
     with open(settings_fp) as fp:
         settings = json.load(fp)
 
-    with open(os.path.join(settings["analysis"]["metrics_dump"], "agg_maps.csv"), "r") as fp:
+    with open(os.path.join(settings["analysis"]["metrics_dump"], "agg_maps_homes.csv"), "r") as fp:
         reader = csv.reader(fp, delimiter = ",", quotechar = '"')
         data = [row for row in reader]
 

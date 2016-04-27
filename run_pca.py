@@ -147,17 +147,17 @@ if __name__ == "__main__":
 
     # Plot clusters
     # results: {"cluster_results": [{"centroid": {"label": "", "data": []}, "data": [{"label": "", "data": []}]}, {}]}
-    treatment_shapes = {"T-256_G-1_A-64_P-0": "o", "T-256_G-1_A-64_P-1.0": "s","T-256_G-2_A-64_P-0": "D", "T-256_G-2_A-64_P-1.0": "*", "T-256_G-16_A-64_P-0": "^", "T-256_G-16_A-64_P-1.0": "+"}
-    cluster_colors = ["r", "b", "y", "g", "m", "c"]
-    plt.hold(True)
-    for ci in range(0, len(results["cluster_results"])):
-        this_cluster = results["cluster_results"][ci]
-        # Plot centroid
-        centroid_x = this_cluster["centroid"]["data"][0]
-        centroid_y = this_cluster["centroid"]["data"][1]
-        plt.plot([centroid_x], [centroid_y], "x", color = cluster_colors[ci % len(cluster_colors)], alpha = 1.0)
-        for point in this_cluster["data"]:
-            pltlabel = point["label"].split(".rep")[0].replace("_U-50000", "")
-            plt.plot([point["data"][0]], [point["data"][1]], marker = treatment_shapes[pltlabel], color = cluster_colors[ci % len(cluster_colors)], alpha = 0.5)
-
-    plt.show()
+    # treatment_shapes = {"T-256_G-1_A-64_P-0": "o", "T-256_G-1_A-64_P-1.0": "s","T-256_G-2_A-64_P-0": "D", "T-256_G-2_A-64_P-1.0": "*", "T-256_G-16_A-64_P-0": "^", "T-256_G-16_A-64_P-1.0": "+"}
+    # cluster_colors = ["r", "b", "y", "g", "m", "c"]
+    # plt.hold(True)
+    # for ci in range(0, len(results["cluster_results"])):
+    #     this_cluster = results["cluster_results"][ci]
+    #     # Plot centroid
+    #     centroid_x = this_cluster["centroid"]["data"][0]
+    #     centroid_y = this_cluster["centroid"]["data"][1]
+    #     plt.plot([centroid_x], [centroid_y], "x", color = cluster_colors[ci % len(cluster_colors)], alpha = 1.0)
+    #     for point in this_cluster["data"]:
+    #         pltlabel = point["label"].split(".rep")[0].replace("_U-50000", "")
+    #         plt.plot([point["data"][0]], [point["data"][1]], marker = treatment_shapes[pltlabel], color = cluster_colors[ci % len(cluster_colors)], alpha = 0.5)
+    #
+    # plt.show()

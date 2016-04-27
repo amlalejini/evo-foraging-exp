@@ -44,6 +44,7 @@ if __name__ == "__main__":
     with open(settings_fp) as fp:
         settings = json.load(fp)
 
+    exp_data_dump = settings["exp_data_dump_partial_path"].strip("/")
     # Load template (default settings)
     template_settings = read_cfg(settings["settings_template"])
 
@@ -105,7 +106,7 @@ if __name__ == "__main__":
 #PBS -j oe
 
 TREATMENT_NAME=%s
-DATA_DIR=${HOME}/Data/evo-foraging-exp/runs3.0
+DATA_DIR=${HOME}/%s
 REP_DIR=${DATA_DIR}/${TREATMENT_NAME}/rep_${PBS_ARRAYID}
 
 cd ${PBS_O_WORKDIR}
@@ -119,6 +120,6 @@ cd ${REP_DIR}
 ./MABE configFileName ./${TREATMENT_NAME}.cfg outputDirectory ./output/ randomSeed ${PBS_ARRAYID} > ${REP_DIR}/log 2>&1
 
 qstat -f ${PBS_JOBID}
-''' % (treatment, treatment)
+''' % (treatment, treatment, exp_data_dump)
             with open("qsub_config/%s.qsub" % treatment, "w") as fp:
                 fp.write(qsub_content)

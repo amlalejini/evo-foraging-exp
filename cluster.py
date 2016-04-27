@@ -1,8 +1,5 @@
 import random, copy
 
-'''
-TODO:
-'''
 
 class KMeansCluster(object):
 
