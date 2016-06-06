@@ -119,7 +119,7 @@ then
     cp ../exp_configs/settings_baseline.cfg ${WORK}/
     cp ../exp_configs/${EXECUTABLE} ${WORK}/
     cd $WORK
-    mkdir output
+    mkdir -p output
 fi
 #Run main simulation program
 longjob ./$EXECUTABLE $COMMANDLINEOPTIONS
