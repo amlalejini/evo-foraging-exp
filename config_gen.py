@@ -98,7 +98,7 @@ if __name__ == "__main__":
 ### Name job
 #PBS -N %s
 ### Email stuff
-#PBS -M lalejini@msu.edu
+#PBS -M notmyemail@msu.edu
 #PBS -m ae
 ### Setup multiple replicates
 #PBS -t 1-10

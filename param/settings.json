@@ -1,6 +1,6 @@
 {
   "settings_template": "param/settings_template.cfg",
-  "exp_data_dump_partial_path": "scratch/data/evo-foraging-exp", 
+  "exp_data_dump_partial_path": "scratch/data/evo-foraging-exp",
   "config_output": "config/",
   "experiment_config": {
     "FORAGE_predictability": {
@@ -36,7 +36,7 @@
     "test_envs_loc": "./test_envs",
     "genome_trials": 1,
     "genomeFileToAnalyze": "genome_50000.csv",
-    "org_lifespan": 1024,
+    "org_lifespan": 4096,
     "visitable_world_width": 70,
     "world_width": 88,
     "analysis_dump": "/home/parallels/Desktop/scratch/testexp",

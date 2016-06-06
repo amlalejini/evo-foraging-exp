@@ -36,7 +36,7 @@ if __name__ == "__main__":
     world_width = settings["analysis"]["world_width"]
 
     # Load the aggregate heat maps (each map is a data point to be clustered)
-    agg_maps_fn = "agg_maps_homes-NOG16P0.csv"
+    agg_maps_fn = "agg_maps_homes.csv"
     agg_maps_path = os.path.join(metrics_dump, agg_maps_fn)
     csv.field_size_limit(sys.maxsize)
     with open(agg_maps_path) as fp:
