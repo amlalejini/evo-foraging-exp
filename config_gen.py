@@ -1,4 +1,4 @@
-import json, os, copy, errno
+import json, os, copy, errno, subprocess
 
 '''
 Script functionality:
@@ -13,20 +13,6 @@ def mkdir_p(path):
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
         else: raise
-
-def read_cfg(cfg_fp):
-    '''
-    Return configuration settings from path to .cfg file.
-    Format: {"setting": value,...}
-    '''
-    configuration = {}
-    with open(cfg_fp) as fp:
-        for line in fp:
-            line = line.split("#")[0].strip()
-            if line == "": continue
-            setting = line.split("=")
-            configuration[setting[0].strip()] = setting[1].strip()
-    return configuration
 
 def write_cfg(cfg_dict, out_loc, fname):
     content = ""
@@ -44,20 +30,20 @@ if __name__ == "__main__":
     with open(settings_fp) as fp:
         settings = json.load(fp)
 
-    # Load template (default settings)
-    template_settings = read_cfg(settings["settings_template"])
-
     # Build all possible treatments from experiment config settings
     cfgs = {}
     for var in settings["experiment_config"]:
-        del template_settings[var]
         vals = settings["experiment_config"][var]["values"]
         uid = settings["experiment_config"][var]["uid"]
         # if a list wasn't provided, turn it into a list
         if (not isinstance(vals, list)) or isinstance(vals, basestring): vals = [vals]
+
         if len(cfgs) == 0:
+            # We haven't started building cfgs yet. Make initial treatment dictionaries.
+            #  Here, we start with exactly one treatment per variable value.
             cfgs = {"%s-%s" % (uid, str(v)):{var: str(v)} for v in vals}
             continue
+        # We must not be doing the first variable. Let's rebuild our configs given new variable values and old treatments.
         new = {}
         for val in vals:
             def update(d, k, v):
@@ -67,58 +53,86 @@ if __name__ == "__main__":
         # update current configs with newly made configs
         cfgs = new
 
-    # Write config files out
+    # Write out each of our parameter configurations
     for treatment in cfgs:
-        cfgs[treatment].update(template_settings)
-        write_cfg(cfgs[treatment], settings["config_output"], "%s.cfg" % treatment)
+        write_cfg(cfg_dict = cfgs[treatment], out_loc = settings["config_output"], fname = "%s.cfg" % treatment)
 
-    if settings["generate_run_list"]:
-        # Build a run list flie for this
-        with open(settings["run_list_template"]) as fp:
-            rl_content = fp.read() + "\n\n"
-        for treatment in cfgs:
-            reps = "%s..%s" % (settings["run_list_config"]["rep_start"], settings["run_list_config"]["rep_end"])
-            name ="%s_rep" % treatment
-            config_name = "%s.cfg" % treatment
-            cmd = "%s %s mkdir output && mkdir config && cp %s config && rm ./*.cfg && module swap GNU GNU/4.8.3 && ./MABE configFileName ./config/%s outputDirectory ./output/ randomSeed $seed" % (reps, name, config_name, config_name)
-            rl_content += "%s\n\n" % cmd
-        with open(os.path.join("config", "run_list"), "w") as fp:
-            fp.write(rl_content)
+    # Build out outer loop (handles multiple replicates) for checkpointed job submission
+    olc_qsub_cmd = ""
+    for treatment in cfgs:
+        olc_qsub_cmd += "\tqsub -v repN=$R %s_long.qsub\n" % treatment
+    outerlooplong_content = '''#!/bin/bash
+#we simply itterate over a shit ton of parameters (R H F) and use N and M as a counter to generate folders later
+for R in {1..%d}
+do
+%s
+done
+''' % (settings["number_of_replicates"], olc_qsub_cmd)
+    with open(os.path.join(settings["qsubs_dump"], "outerLoopLong.sh"), "w") as fp:
+        fp.write(outerlooplong_content)
+    # Make the script executable
+    rc = subprocess.call("chmod 777 %s" % os.path.join(settings["qsubs_dump"], "outerLoopLong.sh"), shell = True)
 
-    if settings["generate_qsub_files"]:
-        for treatment in cfgs:
-            qsub_content = '''#!/bin/bash --login
-
-### Define Resources needed:
-#PBS -l walltime=144:00:00
-#PBS -l mem=8gb
-#PBS -l nodes=1:ppn=1
-#PBS -l feature=intel14
-### Name job
-#PBS -N %s
-### Email stuff
-#PBS -M lalejini@msu.edu
-#PBS -m ae
-### Setup multiple replicates
-#PBS -t 1-10
-### Combine and redirect output/error logs
+    # Build each of our qsub files.
+    for treatment in cfgs:
+        qsub_content = '''#!/bin/bash -login
+#PBS -l nodes=1:ppn=1,walltime=03:45:00,mem=8gb,feature=gbe
 #PBS -j oe
 
-TREATMENT_NAME=%s
-DATA_DIR=${HOME}/Data/evo-foraging-exp/runs3.0
-REP_DIR=${DATA_DIR}/${TREATMENT_NAME}/rep_${PBS_ARRAYID}
-
+# we need the following three lines
+shopt -s expand_aliases
 cd ${PBS_O_WORKDIR}
-mkdir -p ${REP_DIR}
-mkdir -p ${REP_DIR}/output
+module load powertools
 
-cp ../config/${TREATMENT_NAME}.cfg ${REP_DIR}
-cp ../config/MABE ${REP_DIR}
+# Define the current treatment name as well as our destination data dump directory
+TREATMENT_NAME=%s
+DATA_DIR=/mnt/scratch/%s/data/evo-foraging-strats
 
-cd ${REP_DIR}
-./MABE configFileName ./${TREATMENT_NAME}.cfg outputDirectory ./output/ randomSeed ${PBS_ARRAYID} > ${REP_DIR}/log 2>&1
+# mabe might require this, comment if you don't need it:
+module swap GNU GNU/4.8.3
 
+# 4 hours * 60 minutes * 6 seconds - 60 seconds * 5 minutes
+# export BLCR_WAIT_SEC=$(( 4 * 60 * 60 - 60 * 5 ))
+# just so you know 12600 seconds is 3.5 hours
+# I adjusted the wall time to 3:45 I think that should give you a little bit of an edge
+# against 4h jobs
+# 12600 is 3.5 hours of runtime
+export BLCR_WAIT_SEC=$(( 12600 ))
+export PBS_JOBSCRIPT="$0"
+echo "Waiting ${BLCR_WAIT_SEC} seconds to run ${PBS_JOBSCRIPT}"
+
+# Define MABE executable name and command line options.
+EXECUTABLE=MABE
+COMMANDLINEOPTIONS="-f settings_baseline.cfg %s -p GLOBAL-randomSeed ${repN}"
+
+
+if [ ! -f checkfile.blcr ]
+then
+    # Make a subdirectory - this makes snapshotting easier!
+    # ICER recommends running this on scratch, I don't know why, here I copy everything into a subfolder
+    # Define and make our working directory
+    WORK=${DATA_DIR}/${TREATMENT_NAME}__rep_${repN}
+    mkdir -p $WORK
+    # Copy MABE and relevant config files to working directory
+    cp ${EXECUTABLE} ${WORK}/
+    cp ../exp_configs/${TREATMENT_NAME}.cfg ${WORK}/
+    cp ../exp_configs/settings_baseline.cfg ${WORK}/
+    cd $WORK
+    mkdir output
+fi
+#Run main simulation program
+longjob ./$EXECUTABLE $COMMANDLINEOPTIONS
+
+
+#I have no idea what the two lines below actually do ...
+ret=$?
 qstat -f ${PBS_JOBID}
-''' % (treatment, treatment)
-            with open("qsub_config/%s.qsub" % treatment, "w") as fp:
-                fp.write(qsub_content)
+
+exit $ret
+
+''' % (treatment, settings["scratch_user"], treatment + ".cfg")
+        # Write out out qsub file
+        with open(os.path.join(settings["qsubs_dump"], "%s_long.qsub" % treatment), "w") as fp:
+            fp.write(qsub_content)
+        # Make the script executable
+        rc = subprocess.call("chmod 777 %s" % os.path.join(settings["qsubs_dump"], "%s_long.qsub" % treatment), shell = True)

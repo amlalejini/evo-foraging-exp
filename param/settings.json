@@ -1,35 +1,31 @@
 {
-  "settings_template": "param/settings_template.cfg",
-  "config_output": "config/",
+  "config_output": "exp_configs/",
   "experiment_config": {
-    "FORAGE_predictability": {
+    "WORLD_FORAGE-resourcePredictability": {
       "values": [0, 1.0],
       "uid": "P"
     },
-    "FORAGE_granularity": {
-      "values": [1, 2, 4, 8, 16, 32],
+    "WORLD_FORAGE-resourceGranularity": {
+      "values": [1, 3, 9, 27],
       "uid": "G"
     },
-    "FORAGE_areaSize": {
-      "values": [64],
-      "uid": "A"
+    "WORLD_FORAGE-worldSize": {
+      "values": [81],
+      "uid": "WS"
     },
-    "FORAGE_tickLength": {
-      "values": [128, 256],
-      "uid": "T"
+    "WORLD_FORAGE-seasonLength": {
+      "values": [81],
+      "uid": "SL"
     },
-    "optimizer": {
-      "values": ["GA", "Tournament2"],
-      "uid": "O"
+    "WORLD_FORAGE-organismLifespan": {
+      "values": [1296],
+      "uid": "LS"
     }
   },
-  "generate_run_list": false,
-  "run_list_template": "param/run_list_template",
-  "run_list_config": {
-    "rep_start": 1,
-    "rep_end": 10
-  },
+  "scratch_user": "lalejini",
   "generate_qsub_files": true,
+  "number_of_replicates": 50,
+  "qsubs_dump" : "qsubs",
   "analysis": {
     "exp_data_location": "/mnt/home/lalejini/Data/evo-foraging-exp/03-27-probgates/probgates",
     "test_envs_loc": "./test_envs",
