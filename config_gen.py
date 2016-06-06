@@ -89,7 +89,7 @@ TREATMENT_NAME=%s
 DATA_DIR=/mnt/scratch/%s/data/evo-foraging-strats
 
 # mabe might require this, comment if you don't need it:
-module swap GNU GNU/4.8.3
+module swap GNU GNU/5.2
 
 # 4 hours * 60 minutes * 6 seconds - 60 seconds * 5 minutes
 # export BLCR_WAIT_SEC=$(( 4 * 60 * 60 - 60 * 5 ))
