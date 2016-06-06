@@ -24,7 +24,7 @@
   },
   "scratch_user": "lalejini",
   "generate_qsub_files": true,
-  "number_of_replicates": 3,
+  "number_of_replicates": 1,
   "qsubs_dump" : "qsubs",
   "analysis": {
     "exp_data_location": "/mnt/home/lalejini/Data/evo-foraging-exp/03-27-probgates/probgates",
