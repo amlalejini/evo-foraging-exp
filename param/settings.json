@@ -27,21 +27,10 @@
   "number_of_replicates": 1,
   "qsubs_dump" : "qsubs",
   "analysis": {
-    "exp_data_location": "/mnt/home/lalejini/Data/evo-foraging-exp/03-27-probgates/probgates",
+    "exp_data_location": "/home/parallels/Desktop/scratch/evoforagetest",
     "test_envs_loc": "./test_envs",
     "genome_trials": 1,
     "genomeFileToAnalyze": "genome_50000.csv",
-    "org_lifespan": 1024,
-    "visitable_world_width": 70,
-    "world_width": 88,
-    "analysis_dump": "/home/parallels/Desktop/scratch/testexp",
-    "metrics_dump": "/home/parallels/Desktop/scratch/metrics-dump",
-    "vid_frame_dump": "/home/parallels/devo_ws/evo-foraging-exp/group_scripts/EFS_visualizer/vid_dump",
-    "vid_dump": "/home/parallels/Desktop/probgates-analysis/vids",
-    "brain_stats": {
-      "gate_types": ["ProbabilisticGates", "DeterministicGates"],
-      "brain_connections": ["visual_1:0", "visual_1:1", "visual_2:0", "visual_2:1", "visual_4:0", "visual_4:1", "visual_8:0", "visual_8:1", "orientation:0", "orientation:1", "hidden:0", "hidden:1", "hidden:2", "out:0", "out:1"],
-      "connection_types": ["visual_1", "visual_2", "visual_4", "visual_8", "orientation", "hidden", "out"]
-    }
+    "analysis_dump": "/home/parallels/Desktop/scratch/testexp"
   }
 }
