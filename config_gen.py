@@ -105,25 +105,25 @@ echo "Waiting ${BLCR_WAIT_SEC} seconds to run ${PBS_JOBSCRIPT}"
 EXECUTABLE=MABE
 COMMANDLINEOPTIONS="-f settings_baseline.cfg %s -p GLOBAL-randomSeed ${repN}"
 
+WORK=${DATA_DIR}/${TREATMENT_NAME}__rep_${repN}
 
 if [ ! -f checkfile.blcr ]
 then
     # Make a subdirectory - this makes snapshotting easier!
     # ICER recommends running this on scratch, I don't know why, here I copy everything into a subfolder
     # Define and make our working directory
-    WORK=${DATA_DIR}/${TREATMENT_NAME}__rep_${repN}
+
     mkdir -p $WORK
     # Copy MABE and relevant config files to working directory
     cp ${EXECUTABLE} ${WORK}/
     cp ../exp_configs/${TREATMENT_NAME}.cfg ${WORK}/
     cp ../exp_configs/settings_baseline.cfg ${WORK}/
     cp ../exp_configs/${EXECUTABLE} ${WORK}/
-    cd $WORK
-    mkdir -p output
+    mkdir -p ${WORK}/output
 fi
+cd $WORK
 #Run main simulation program
 longjob ./$EXECUTABLE $COMMANDLINEOPTIONS
-
 
 #I have no idea what the two lines below actually do ...
 ret=$?
