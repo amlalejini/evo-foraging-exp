@@ -24,8 +24,16 @@
   },
   "scratch_user": "lalejini",
   "generate_qsub_files": true,
-  "number_of_replicates": 1,
-  "qsubs_dump" : "qsubs",
+  "longjob": false,
+  "long_qsubs_dump" : "long_qsubs",
+  "qsubs_dump": "qsubs",
+  "replicates": 1,
+  "job_settings": {
+    "walltime": "00:02:00",
+    "mem": "4gb",
+    "email": "lalejini@msu.edu",
+    "data_dump_path": "/mnt/scratch/lalejini/efs_data"
+  },
   "analysis": {
     "exp_data_location": "/home/parallels/Desktop/scratch/evoforagetest",
     "test_envs_loc": "./test_envs",

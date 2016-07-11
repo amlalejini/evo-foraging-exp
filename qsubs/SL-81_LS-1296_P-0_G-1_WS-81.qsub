@@ -1,0 +1,38 @@
+#!/bin/bash --login
+
+### Define Resources needed:
+#PBS -l walltime=00:02:00
+#PBS -l mem=4gb
+#PBS -l nodes=1:ppn=1
+#PBS -l feature=intel14
+### Name job
+#PBS -N SL-81_LS-1296_P-0_G-1_WS-81
+### Email stuff
+#PBS -M lalejini@msu.edu
+#PBS -m ae
+### Setup multiple replicates
+#PBS -t 1-1
+### Combine and redirect output/error logs
+#PBS -j oe
+
+TREATMENT_NAME=SL-81_LS-1296_P-0_G-1_WS-81
+DATA_DIR=/mnt/scratch/lalejini/efs_data
+REP_DIR=${DATA_DIR}/${TREATMENT_NAME}__rep_${PBS_ARRAYID}
+
+cd ${PBS_O_WORKDIR}
+mkdir -p ${REP_DIR}
+mkdir -p ${REP_DIR}/output
+
+cp ../exp_configs/${TREATMENT_NAME}.cfg ${REP_DIR}
+cp ../exp_configs/settings_baseline.cfg ${REP_DIR}
+cp ../exp_configs/MABE ${REP_DIR}
+
+cd ${REP_DIR}
+
+EXECUTABLE=MABE
+COMMANDLINEOPTIONS="-f settings_baseline.cfg ${TREATMENT_NAME}.cfg -p GLOBAL-randomSeed ${PBS_ARRAYID}"
+
+./$EXECUTABLE $COMMANDLINEOPTIONS > log
+
+qstat -f ${PBS_JOBID}
+

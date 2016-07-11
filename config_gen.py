@@ -1,4 +1,4 @@
-import json, os, copy, errno, subprocess
+import json, os, copy, errno, subprocess, argparse
 
 '''
 Script functionality:
@@ -57,25 +57,29 @@ if __name__ == "__main__":
     for treatment in cfgs:
         write_cfg(cfg_dict = cfgs[treatment], out_loc = settings["config_output"], fname = "%s.cfg" % treatment)
 
-    # Build out outer loop (handles multiple replicates) for checkpointed job submission
-    olc_qsub_cmd = ""
-    for treatment in cfgs:
-        olc_qsub_cmd += "\tqsub -v repN=$R %s_long.qsub\n" % treatment
-    outerlooplong_content = '''#!/bin/bash
+    if (settings["longjob"]):
+        ################
+        # LONG JOB SUBMISSION GEN
+        ################
+        # Build out outer loop (handles multiple replicates) for checkpointed job submission
+        olc_qsub_cmd = ""
+        for treatment in cfgs:
+            olc_qsub_cmd += "\tqsub -v repN=$R %s_long.qsub\n" % treatment
+        outerlooplong_content = '''#!/bin/bash
 #we simply itterate over a shit ton of parameters (R H F) and use N and M as a counter to generate folders later
 for R in {1..%d}
 do
 %s
 done
-''' % (settings["number_of_replicates"], olc_qsub_cmd)
-    with open(os.path.join(settings["qsubs_dump"], "outerLoopLong.sh"), "w") as fp:
-        fp.write(outerlooplong_content)
-    # Make the script executable
-    rc = subprocess.call("chmod 777 %s" % os.path.join(settings["qsubs_dump"], "outerLoopLong.sh"), shell = True)
+''' % (settings["replicates"], olc_qsub_cmd)
+        with open(os.path.join(settings["lognqsubs_dump"], "outerLoopLong.sh"), "w") as fp:
+            fp.write(outerlooplong_content)
+        # Make the script executable
+        rc = subprocess.call("chmod 777 %s" % os.path.join(settings["longqsubs_dump"], "outerLoopLong.sh"), shell = True)
 
-    # Build each of our qsub files.
-    for treatment in cfgs:
-        qsub_content = '''#!/bin/bash -login
+        # Build each of our qsub files.
+        for treatment in cfgs:
+            qsub_content = '''#!/bin/bash -login
 #PBS -l nodes=1:ppn=1,walltime=03:45:00,mem=8gb,feature=gbe
 #PBS -j oe
 
@@ -132,8 +136,57 @@ qstat -f ${PBS_JOBID}
 exit $ret
 
 ''' % (treatment, settings["scratch_user"], treatment + ".cfg")
-        # Write out out qsub file
-        with open(os.path.join(settings["qsubs_dump"], "%s_long.qsub" % treatment), "w") as fp:
-            fp.write(qsub_content)
-        # Make the script executable
-        rc = subprocess.call("chmod 777 %s" % os.path.join(settings["qsubs_dump"], "%s_long.qsub" % treatment), shell = True)
+            # Write out out qsub file
+            with open(os.path.join(settings["longqsubs_dump"], "%s_long.qsub" % treatment), "w") as fp:
+                fp.write(qsub_content)
+            # Make the script executable
+            rc = subprocess.call("chmod 777 %s" % os.path.join(settings["longqsubs_dump"], "%s_long.qsub" % treatment), shell = True)
+    else:
+        ###################
+        # NORMAL SUBMISSION SCRIPT GEN
+        ###################
+        for treatment in cfgs:
+            qsub_content = '''#!/bin/bash --login
+
+### Define Resources needed:
+#PBS -l walltime=%s
+#PBS -l mem=%s
+#PBS -l nodes=1:ppn=1
+#PBS -l feature=intel14
+### Name job
+#PBS -N %s
+### Email stuff
+#PBS -M %s
+#PBS -m ae
+### Setup multiple replicates
+#PBS -t %d-%d
+### Combine and redirect output/error logs
+#PBS -j oe
+
+TREATMENT_NAME=%s
+DATA_DIR=%s
+REP_DIR=${DATA_DIR}/${TREATMENT_NAME}__rep_${PBS_ARRAYID}
+
+cd ${PBS_O_WORKDIR}
+mkdir -p ${REP_DIR}
+mkdir -p ${REP_DIR}/output
+
+cp ../exp_configs/${TREATMENT_NAME}.cfg ${REP_DIR}
+cp ../exp_configs/settings_baseline.cfg ${REP_DIR}
+cp ../exp_configs/MABE ${REP_DIR}
+
+cd ${REP_DIR}
+
+EXECUTABLE=MABE
+COMMANDLINEOPTIONS="-f settings_baseline.cfg ${TREATMENT_NAME}.cfg -p GLOBAL-randomSeed ${PBS_ARRAYID}"
+
+./$EXECUTABLE $COMMANDLINEOPTIONS > log
+
+qstat -f ${PBS_JOBID}
+
+''' % (settings["job_settings"]["walltime"], settings["job_settings"]["mem"], treatment, settings["job_settings"]["email"], 1, settings["replicates"], treatment, settings["job_settings"]["data_dump_path"])
+
+            # Write out out qsub file
+            mkdir_p(os.path.join(settings["qsubs_dump"]))
+            with open(os.path.join(settings["qsubs_dump"], "%s.qsub" % treatment), "w") as fp:
+                fp.write(qsub_content)
