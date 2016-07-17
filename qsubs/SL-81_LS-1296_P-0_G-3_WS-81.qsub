@@ -19,6 +19,9 @@ TREATMENT_NAME=SL-81_LS-1296_P-0_G-3_WS-81
 DATA_DIR=/mnt/scratch/lalejini/efs_data
 REP_DIR=${DATA_DIR}/${TREATMENT_NAME}__rep_${PBS_ARRAYID}
 
+module load powertools
+module swap GNU GNU/5.2
+
 cd ${PBS_O_WORKDIR}
 mkdir -p ${REP_DIR}
 mkdir -p ${REP_DIR}/output
