@@ -167,6 +167,9 @@ TREATMENT_NAME=%s
 DATA_DIR=%s
 REP_DIR=${DATA_DIR}/${TREATMENT_NAME}__rep_${PBS_ARRAYID}
 
+module load powertools
+module swap GNU GNU/5.2
+
 cd ${PBS_O_WORKDIR}
 mkdir -p ${REP_DIR}
 mkdir -p ${REP_DIR}/output
