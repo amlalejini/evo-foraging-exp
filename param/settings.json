@@ -2,11 +2,11 @@
   "config_output": "exp_configs/",
   "experiment_config": {
     "WORLD_FORAGE-resourcePredictability": {
-      "values": [0, 0.5, 1.0],
+      "values": [0.0, 0.5, 1.0],
       "uid": "P"
     },
     "WORLD_FORAGE-resourceGranularity": {
-      "values": [9, 27],
+      "values": [1, 3, 9, 27],
       "uid": "G"
     },
     "WORLD_FORAGE-worldSize": {
@@ -27,9 +27,9 @@
   "longjob": false,
   "long_qsubs_dump" : "long_qsubs",
   "qsubs_dump": "qsubs",
-  "replicates": 20,
+  "replicates": 30,
   "job_settings": {
-    "walltime": "48:00:00",
+    "walltime": "120:00:00",
     "mem": "4gb",
     "email": "lalejini@msu.edu",
     "data_dump_path": "/mnt/scratch/lalejini/efs_data"
